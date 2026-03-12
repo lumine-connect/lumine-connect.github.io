@@ -2,137 +2,527 @@
 <html>
 
 <head>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lumine-js</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css">
+
+  <title>Lumine.js Documentation</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <!-- and it's easy to individually load additional languages -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/highlightjs-copy/dist/highlightjs-copy.min.css" />
-  <script src="https://unpkg.com/highlightjs-copy/dist/highlightjs-copy.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
   <style>
-    .hljs {
-      display: block;
-      padding: 10px 10px;
-      border: solid 1px gray;
+    body {
+      background: #0f0f0f;
+      color: #e6e6e6;
+      font-family: system-ui;
     }
 
-    .bi {
-      color: yellow;
+    .navbar {
+      border-bottom: 1px solid #333;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 56px;
+      bottom: 0;
+      left: 0;
+      width: 260px;
+      overflow: auto;
+      background: #161616;
+      border-right: 1px solid #2a2a2a;
+      padding: 15px;
+      transition: transform .3s ease;
+      z-index: 1000;
+    }
+
+    .sidebar h6 {
+      color: #888;
+      margin-top: 18px;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 6px 10px;
+      color: #bbb;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .sidebar a:hover {
+      background: #222;
+      color: #fff;
+    }
+
+    .content {
+      margin-left: 260px;
+      padding: 40px;
+      max-width: 1000px;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 80px 20px;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 700;
+    }
+
+    .hero p {
+      color: #999;
+    }
+
+    .section-title {
+      margin-top: 40px;
+      margin-bottom: 15px;
+      font-weight: 600;
+      border-bottom: 1px solid #333;
+      padding-bottom: 6px;
+    }
+
+    .member-card {
+      background: #171717;
+      border: 1px solid #2c2c2c;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .member-card h5 {
+      margin-bottom: 6px;
+    }
+
+    pre {
+      border-radius: 8px;
+      background: #111;
+      padding: 14px;
+      overflow: auto;
     }
 
     code {
-      color: orangered;
+      color: #ffb454;
+    }
+
+    table {
+      margin-top: 10px;
+    }
+
+    table th {
+      background: #1a1a1a;
+    }
+
+    table td,
+    table th {
+      border-color: #333 !important;
+    }
+
+    @media (max-width:992px) {
+
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .content {
+        margin-left: 0;
+        padding: 25px;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
     }
   </style>
+
   <script>
-    let documentation;
-    fetch("docs.json").then(response => response.json()).then(res => {
-      hljs.addPlugin(new CopyButtonPlugin());
-      $(".navbar-nav").html(res.docs.map(x => `<a class="nav-link" href="#${x.name}v${x.version}/">${x.name} ${x.version.replace(/(\d+)\.(\d+)\.\d+/gm, "v$1.$2")}</a>`).join(""))
-      documentation = res
-      handleHashChange();
-    })
 
-    function handleHashChange() {
-      var currentHash = window.location.hash;
-      pathManager(currentHash)
+    let documentation = null
+
+    async function init() {
+
+      const res = await fetch("docs.json")
+      documentation = await res.json()
+
+      buildSidebar()
+      handleHash()
+
     }
-    window.addEventListener("hashchange", handleHashChange);
 
-    $(document).on("click", "a", function() {
-      let path = $(this).attr('href');
-      if (!path) return;
-      return pathManager(path)
-    })
+    window.addEventListener("hashchange", handleHash)
+
+    function toggleSidebar() {
+      $(".sidebar").toggleClass("active")
+    }
+
+    function handleHash() {
+
+      const hash = location.hash
+
+      if (!hash || hash === "#") {
+        renderHome()
+        return
+      }
+
+      pathManager(hash)
+
+    }
+
+    function buildSidebar() {
+
+      let html = ""
+
+      documentation.docs.forEach(module => {
+
+        html += `<h6>${module.name} v${module.version}</h6>`
+
+        module.docs.forEach(cls => {
+
+          html += `
+<a href="#/${module.name}v${module.version}/${cls.name}" onclick="toggleSidebar()">
+${cls.name}
+</a>
+`
+
+        })
+
+      })
+
+      $("#sidebar").html(html)
+
+    }
+
+    function renderHome() {
+
+      $("#content").html(`
+
+<div class="hero">
+
+<h1>✨ Lumine.js</h1>
+<p>Multi platform bot framework</p>
+
+<div class="mt-4">
+<pre><code class="language-bash">npm install Lumine-js/lumined.js</code></pre>
+</div>
+
+<div class="mt-4 col-md-4 mx-auto">
+<input id="search" class="form-control" placeholder="Search documentation">
+</div>
+
+</div>
+
+`)
+
+      hljs.highlightAll()
+
+    }
 
     function pathManager(path) {
-      path = path.replace("#", "/")
-      switch (true) {
-        case /\/(.*?)v(.*?)\//.test(path):
-          const regex = new RegExp('\\\/(.*?)v(.*?)\\\/', 'gm');
-          let params = {};
-          while ((match = regex.exec(path)) !== null) {
-            params.module = match[1];
-            params.version = match[2];
-          }
 
-          let data = documentation.docs.find(x => x.name === params.module && x.version === params.version);
-          $("#content").html(`
-      <div class="container mt-3">
-        <h1>${data.name}</h1>
-        <p>${data.description}</p>
-      </div>` + (data.subDocs ? `<div class="container">` + data.subDocs.map(x => {
-              switch (x.type) {
-                case "text":
-                  return `<p>${x.value}</p>`
-                  break;
-                case "codeblock":
-                  return `<pre><code class="language-${x.language}">${x.value}</code></pre>`
-                  break;
-              }
-            }).join("") + "</div>" : "") +
-            data.docs.map(x => `
-      <div class="container mt-3">
-        <h3>${x.type == "Class" ? `<i class="bi bi-archive-fill fs-6"></i>` : `<i class="bi bi-book-fill fs-6"></i>`} ${x.name}</h3>
-        ${x.params ? `<ul>${x.params.map(par => `<li>${par.name} <code>${par.type.replace("<", "&lt;").replace(">", "&gt;")}</code>${par.required ? " | <b>Required</b>" : " | <b>Optional</b>" }</li>`).join(", ")}</ul>` : ""}
-        ${x.description ? `<p>${x.description}</p>` : ""}
-        ${x.examples ? x.examples.map(ex => `
-        ${ex.description ? "<p>" + ex.description + "</p>" : ""}
-        ${`<pre><code class="language-javascript">${ex.code}</code></pre>`}
-        ${ex.alert ? `<div class="card m-3 bg-secondary text-white">
-        <div class="card-header">Note</div>
-        <div class="card-body">
-          ${ex.alert}</div>
-        </div>` : ""}
-        `).join("") : ""}
-        <h4>Attribute</h4>
-        <ul>
-          ${x.object.map(obj => `<li>${obj.name} <code>${obj.type.replace("<", "&lt;").replace(">", "&gt;")}</code></li>`).join("")}
-        </ul>
-        ${x.object ? x.object.map(obj => `
-        <div class="card m-1 bg-warning text-black">
-          <div class="card-body">
-            <h6 class="card-title">${obj.name}${obj.type.replace("<", "&lt;").replace(">", "&gt;") == "method" ? "()" : ""}</h6>
-            ${obj.description ? `<div class="card-text fs-6">${obj.description}</div>` : ""}
-            ${obj.params ? `<ul>${obj.params.map(par => `<li>${par.name} <code>${par.type.replace("<", "&lt;").replace(">", "&gt;")}</code>${par.required ? " | <b>Required</b>" : " | <b>Optional</b>" }</li>`).join("")}</ul>` : ""}
-            ${obj.code ? `<pre><code class="language-javascript">${obj.code}</code></pre>` : ""}
-          </div>
-        </div>`).join("") : ""}
-      </div>`).join("")
-          );
-          hljs.highlightAll();
-          break;
-        default:
+      path = path.replace("#/", "")
+      const parts = path.split("/")
 
-          break;
+      if (parts.length < 2) {
+        render404()
+        return
       }
+
+      const modulePart = parts[0]
+      const className = parts[1]
+
+      const moduleMatch = modulePart.match(/(.+)v(.+)/)
+
+      if (!moduleMatch) {
+        render404()
+        return
+      }
+
+      const moduleName = moduleMatch[1]
+      const version = moduleMatch[2]
+
+      const module = documentation.docs.find(
+        m => m.name === moduleName && m.version === version
+      )
+
+      if (!module) {
+        render404()
+        return
+      }
+
+      const cls = module.docs.find(d => d.name === className)
+
+      if (!cls) {
+        render404()
+        return
+      }
+
+      renderClass(cls)
+
     }
+
+    function renderClass(cls) {
+
+      let html = `
+<h1>${cls.name}</h1>
+<p class="text-secondary">${cls.description || ""}</p>
+`
+
+      if (cls.constructor) {
+
+        html += `
+
+<h3 class="section-title">Constructor</h3>
+
+<div class="member-card">
+
+<pre><code class="language-javascript">${escapeHTML(cls.constructor.signature)}</code></pre>
+
+<p>${cls.constructor.description || ""}</p>
+
+${renderParams(cls.constructor.params)}
+${renderExamples(cls.constructor.examples)}
+
+</div>
+`
+
+      }
+
+      const properties = cls.members?.filter(x => x.kind === "property") || []
+      const methods = cls.members?.filter(x => x.kind === "method") || []
+      const events = cls.members?.filter(x => x.kind === "event") || []
+
+      if (properties.length) {
+
+        html += `<h3 class="section-title">Properties</h3>`
+
+        properties.forEach(p => {
+
+          html += `
+
+<div class="member-card">
+
+<h5>${p.name}</h5>
+<div><code>${escapeHTML(p.type)}</code></div>
+
+<p>${p.description || ""}</p>
+
+</div>
+
+`
+
+        })
+
+      }
+
+      if (methods.length) {
+
+        html += `<h3 class="section-title">Methods</h3>`
+
+        methods.forEach(m => {
+
+          html += `
+
+<div class="member-card">
+
+<h5>${m.name}</h5>
+
+<pre><code class="language-javascript">${escapeHTML(m.signature)}</code></pre>
+
+<p>${m.description || ""}</p>
+
+${renderParams(m.params)}
+${renderExamples(m.examples)}
+
+</div>
+
+`
+
+        })
+
+      }
+
+      if (events.length) {
+
+        html += `<h3 class="section-title">Events</h3>`
+
+        events.forEach(e => {
+
+          html += `
+
+<div class="member-card">
+
+<h5>${e.name}</h5>
+
+<p>${e.description || ""}</p>
+
+${renderParams(e.params)}
+${renderExamples(e.examples)}
+
+</div>
+
+`
+
+        })
+
+      }
+
+      $("#content").html(html)
+
+      hljs.highlightAll()
+
+    }
+
+    function renderParams(params) {
+
+      if (!params || !params.length) return ""
+
+      let html = `
+
+<h6 class="mt-3">Parameters</h6>
+
+<table class="table table-dark table-bordered">
+
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+`
+
+      params.forEach(p => {
+
+        html += `
+
+<tr>
+
+<td>${p.name}</td>
+<td><code>${escapeHTML(p.type)}</code></td>
+<td>${p.required ? "Yes" : "No"}</td>
+<td>${p.description || ""}</td>
+
+</tr>
+
+`
+
+      })
+
+      html += `
+
+</tbody>
+</table>
+`
+
+      return html
+
+    }
+
+    function renderExamples(examples) {
+
+      if (!examples || !examples.length) return ""
+
+      let html = `<h6 class="mt-3">Example</h6>`
+
+      examples.forEach(e => {
+
+        if (e.javascript) {
+          html += `<pre><code class="language-javascript">${escapeHTML(e.javascript)}</code></pre>`
+        }
+
+        if (e.typescript) {
+          html += `<pre><code class="language-typescript">${escapeHTML(e.typescript)}</code></pre>`
+        }
+
+      })
+
+      return html
+
+    }
+
+    function render404() {
+
+      $("#content").html(`
+
+<div class="text-center p-5">
+<h1>404</h1>
+<p>Documentation not found</p>
+<a href="#">Back to home</a>
+</div>
+
+`)
+
+    }
+
+    function escapeHTML(text) {
+
+      if (!text) return ""
+
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+
+    }
+
+    $(document).on("keyup", "#search", function () {
+
+      const q = $(this).val().toLowerCase()
+
+      $(".sidebar a").each(function () {
+
+        const text = $(this).text().toLowerCase()
+        $(this).toggle(text.includes(q))
+
+      })
+
+    })
+
+    window.onload = init
+
   </script>
+
 </head>
 
-<body class="bg-dark text-white">
-  <nav class="navbar navbar-expand-lg navbar-warning bg-warning sticky-top">
-    <div class="container-fluid">
-      <a class="navbar-brand">Lumine-js</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-        <div class="navbar-nav">
-        </div>
-      </div>
-    </div>
-  </nav>
-  <div id="content"></div>
+<body>
 
-  </div>
+  <nav class="navbar navbar-dark bg-warning sticky-top">
+
+    <div class="container-fluid">
+
+      <button class="btn btn-dark d-lg-none me-2" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <span class="navbar-brand text-dark fw-bold">
+        Lumine.js Docs
+      </span>
+
+    </div>
+
+  </nav>
+
+  <div id="sidebar" class="sidebar"></div>
+  <div id="content" class="content"></div>
+
 </body>
 
 </html>
